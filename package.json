@@ -1,0 +1,24 @@
+{
+  "name": "multi-agent-test-generator",
+  "version": "1.0.0",
+  "description": "Multi-agent system for automated test case generation using Claude AI",
+  "main": "dist/orchestrator.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node src/orchestrator.ts",
+    "dev": "ts-node src/orchestrator.ts",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "id": "PROJ-142",
+  "summary": "Implement password reset flow via email",
+  "description": "## Overview\nUsers must be able to reset their password through a secure email-based flow.\n\n## Acceptance Criteria\n- User enters registered email on the forgot password screen\n- System sends a reset link valid for 30 minutes\n- Link can only be used once\n- After reset, all active sessions are invalidated\n- User receives confirmation email after successful reset\n\n## Out of Scope\n- SMS-based reset\n- Security questions\n\n## Technical Notes\n- Token must be stored hashed in the database\n- Rate limit: max 3 reset requests per hour per email\n- Link format: /reset-password?token={uuid}",
+  "type": "Story",
+  "priority": "High",
+  "labels": ["authentication", "security", "email"]
+}
