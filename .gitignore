@@ -3,3 +3,5 @@ dist/
 .env
 output/
 *.js.map
+package-lock.json
+package.json

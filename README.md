@@ -1,6 +1,28 @@
-# Multi-Agent Test Case Generator
+<div align="center">
 
-An AI-powered system that automatically generates test cases from Jira tasks using a multi-agent architecture with Claude (Anthropic).
+# 🤖 AI Test Generator
+
+**Multi-agent AI system that generates BDD test cases from Jira tasks using Claude**
+
+![TypeScript](https://img.shields.io/badge/TypeScript-5.4-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Claude](https://img.shields.io/badge/Claude-Sonnet_4.6-D4A017?style=flat-square)
+![Anthropic SDK](https://img.shields.io/badge/Anthropic_SDK-0.27-black?style=flat-square)
+![Jest](https://img.shields.io/badge/Tests-Jest-C21325?style=flat-square&logo=jest&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+
+</div>
+
+---
+
+## What it does
+
+Given a Jira task ID, this system:
+
+1. Reads the task requirements and acceptance criteria
+2. Runs a multi-agent debate to explore test scenarios from different perspectives
+3. Consolidates the debate into structured, prioritized test cases
+4. Pushes test cases to **Zephyr Scale**
+5. Generates **Gherkin `.feature` files** grouped by type — ready for Cypress, Playwright, or Cucumber
 
 ---
 
@@ -18,31 +40,31 @@ Jira Task
 ┌──────────────────────────────────────────┐
 │               Debate Round(s)             │
 │                                          │
-│  🎨 UI Agent       → UX flows, forms,   │
-│                       visual feedback    │
+│  🎨 UI Agent        → UX flows, forms,  │
+│                        visual feedback   │
 │                                          │
-│  🔒 Critical Agent → Security, sessions,│
-│                       business rules     │
+│  🔒 Critical Agent  → Security,sessions,│
+│                        business rules    │
 │                                          │
-│  ⚠️  Edge Case Agent→ Boundaries, invalid│
-│                       inputs, failures   │
+│  ⚠️  Edge Case Agent → Boundaries,      │
+│                        invalid inputs    │
 └──────┬───────────────────────────────────┘
-       │  (shared debate history, up to MAX_DEBATE_ROUNDS)
+       │  (shared debate history · up to MAX_DEBATE_ROUNDS)
        ▼
-┌──────────────┐
-│ Reviewer Agent│  → Consolidates, deduplicates, outputs JSON
-└──────┬───────┘
-       │
-       ├──────────────────────────┐
-       ▼                          ▼
-  Zephyr API              ┌──────────────┐
-  (test cases created)    │ Gherkin Agent │ → .feature files grouped by type
-                          └──────────────┘
-                            output/{taskId}/features/
-                              ├── functional.feature
-                              ├── security.feature
-                              ├── edge_case.feature
-                              └── negative.feature
+┌───────────────┐
+│ Reviewer Agent │  → Consolidates, deduplicates, outputs JSON
+└───────┬───────┘
+        │
+        ├──────────────────────────┐
+        ▼                          ▼
+   Zephyr API              ┌──────────────┐
+   (test cases created)    │ Gherkin Agent │ → .feature files grouped by type
+                           └──────────────┘
+                             output/{taskId}/features/
+                               ├── functional.feature
+                               ├── security.feature
+                               ├── edge_case.feature
+                               └── negative.feature
 ```
 
 ### Key Design Decisions
@@ -58,29 +80,29 @@ Jira Task
 ## Project Structure
 
 ```
-multi-agent-test-generator/
+AI-Test-Generator/
 ├── src/
 │   ├── agents/
-│   │   ├── reader.ts       # Reads and analyzes the Jira task
-│   │   ├── debaters.ts     # UI, Critical, and Edge Case agents
-│   │   ├── reviewer.ts     # Consolidates debate into structured test cases
-│   │   └── gherkin.ts      # Converts test cases into .feature files
+│   │   ├── reader.ts        # Reads and analyzes the Jira task
+│   │   ├── debaters.ts      # UI, Critical, and Edge Case agents
+│   │   ├── reviewer.ts      # Consolidates debate into structured test cases
+│   │   └── gherkin.ts       # Converts test cases into .feature files
 │   ├── integrations/
-│   │   ├── jira.ts         # Jira mock (swap for real API in production)
-│   │   └── zephyr.ts       # Zephyr mock (swap for real API in production)
+│   │   ├── jira.ts          # Jira mock (swap for real API in production)
+│   │   └── zephyr.ts        # Zephyr mock (swap for real API in production)
 │   ├── tests/
-│   │   ├── fixtures.ts     # Shared test data
+│   │   ├── fixtures.ts      # Shared test data
 │   │   ├── jira.test.ts
 │   │   ├── zephyr.test.ts
 │   │   ├── reader.test.ts
 │   │   ├── debaters.test.ts
 │   │   ├── reviewer.test.ts
 │   │   └── gherkin.test.ts
-│   ├── types.ts            # Shared TypeScript interfaces
-│   └── orchestrator.ts     # Main pipeline entry point
+│   ├── types.ts             # Shared TypeScript interfaces
+│   └── orchestrator.ts      # Main pipeline entry point
 ├── samples/
-│   └── task_example.json   # Sample Jira task for demo
-├── output/                 # Generated files (gitignored)
+│   └── task_example.json    # Sample Jira task for demo
+├── output/                  # Generated files (gitignored)
 │   └── {taskId}/
 │       ├── {taskId}_test_cases.json
 │       └── features/
@@ -106,8 +128,8 @@ multi-agent-test-generator/
 ### Installation
 
 ```bash
-git clone https://github.com//fabriciosantoss/AI-Test-Generator
-cd multi-agent-test-generator
+git clone https://github.com/fabriciosantoss/AI-Test-Generator
+cd AI-Test-Generator
 npm install
 ```
 
@@ -127,8 +149,6 @@ npm run dev
 # Run with a specific task ID
 npx ts-node src/orchestrator.ts PROJ-999
 ```
-
-The generated test cases will be saved to `output/{taskId}_test_cases.json`.
 
 ---
 
@@ -234,6 +254,13 @@ Authorization: Bearer {ZEPHYR_API_TOKEN}
 
 ## Tech Stack
 
-- [TypeScript](https://www.typescriptlang.org/)
+- [TypeScript 5.4](https://www.typescriptlang.org/)
 - [Anthropic SDK](https://github.com/anthropic-ai/anthropic-sdk) (`@anthropic-ai/sdk`)
-- Claude Sonnet 4.6
+- [Claude Sonnet 4.6](https://www.anthropic.com)
+- [Jest](https://jestjs.io/) + [ts-jest](https://kulshekhar.github.io/ts-jest/)
+
+---
+
+## License
+
+MIT
