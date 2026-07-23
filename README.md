@@ -33,9 +33,16 @@ Jira Task
 │ Reviewer Agent│  → Consolidates, deduplicates, outputs JSON
 └──────┬───────┘
        │
-       ▼
-  Zephyr API
-  (test cases created)
+       ├──────────────────────────┐
+       ▼                          ▼
+  Zephyr API              ┌──────────────┐
+  (test cases created)    │ Gherkin Agent │ → .feature files grouped by type
+                          └──────────────┘
+                            output/{taskId}/features/
+                              ├── functional.feature
+                              ├── security.feature
+                              ├── edge_case.feature
+                              └── negative.feature
 ```
 
 ### Key Design Decisions
@@ -56,16 +63,33 @@ multi-agent-test-generator/
 │   ├── agents/
 │   │   ├── reader.ts       # Reads and analyzes the Jira task
 │   │   ├── debaters.ts     # UI, Critical, and Edge Case agents
-│   │   └── reviewer.ts     # Consolidates debate into structured test cases
+│   │   ├── reviewer.ts     # Consolidates debate into structured test cases
+│   │   └── gherkin.ts      # Converts test cases into .feature files
 │   ├── integrations/
 │   │   ├── jira.ts         # Jira mock (swap for real API in production)
 │   │   └── zephyr.ts       # Zephyr mock (swap for real API in production)
+│   ├── tests/
+│   │   ├── fixtures.ts     # Shared test data
+│   │   ├── jira.test.ts
+│   │   ├── zephyr.test.ts
+│   │   ├── reader.test.ts
+│   │   ├── debaters.test.ts
+│   │   ├── reviewer.test.ts
+│   │   └── gherkin.test.ts
 │   ├── types.ts            # Shared TypeScript interfaces
 │   └── orchestrator.ts     # Main pipeline entry point
 ├── samples/
 │   └── task_example.json   # Sample Jira task for demo
-├── output/                 # Generated test cases (gitignored)
+├── output/                 # Generated files (gitignored)
+│   └── {taskId}/
+│       ├── {taskId}_test_cases.json
+│       └── features/
+│           ├── functional.feature
+│           ├── security.feature
+│           ├── edge_case.feature
+│           └── negative.feature
 ├── .env.example
+├── jest.config.ts
 ├── package.json
 └── tsconfig.json
 ```
@@ -110,6 +134,30 @@ The generated test cases will be saved to `output/{taskId}_test_cases.json`.
 
 ## Example Output
 
+**`output/PROJ-142/features/functional.feature`**
+```gherkin
+Feature: Password Reset Flow — Functional Scenarios
+
+  Background:
+    Given the user has an active account
+    And the user is on the forgot password screen
+
+  @functional @high
+  Scenario: Valid password reset with registered email
+    When the user enters a valid registered email address
+    And clicks "Send reset link"
+    Then a success message is displayed
+    And a reset email is delivered within 1 minute
+
+  @functional @medium
+  Scenario: Reset link expires after 30 minutes
+    Given the user requested a password reset
+    When 31 minutes have passed
+    And the user clicks the reset link
+    Then an expiration error message is displayed
+```
+
+**`output/PROJ-142/PROJ-142_test_cases.json`**
 ```json
 [
   {
@@ -151,6 +199,7 @@ npm run test:coverage
 | `agents/reader.ts` | API call, model used, formatted task in prompt, non-text response handling |
 | `agents/debaters.ts` | 3 messages per round, agent names, history accumulation, multi-round growth |
 | `agents/reviewer.ts` | JSON parse, field presence, invalid JSON throws, debate history in prompt, approved:false |
+| `agents/gherkin.ts` | One file per type, filename format, directory creation, file write, Claude call count, empty input |
 
 All external dependencies (`@anthropic-ai/sdk`, `fs`) are mocked — no API calls or disk writes happen during tests.
 

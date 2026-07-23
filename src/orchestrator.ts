@@ -8,6 +8,7 @@
  * 3. Debater Agents debate test coverage (up to MAX_DEBATE_ROUNDS)
  * 4. Reviewer Agent consolidates and approves test cases
  * 5. Test cases are pushed to Zephyr
+ * 6. Gherkin Agent generates .feature files grouped by type
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -16,6 +17,7 @@ import { createTestCases } from "./integrations/zephyr";
 import { readerAgent } from "./agents/reader";
 import { runDebateRound } from "./agents/debaters";
 import { reviewerAgent } from "./agents/reviewer";
+import { gherkinAgent } from "./agents/gherkin";
 import { AgentContext } from "./types";
 
 const MAX_DEBATE_ROUNDS = 2;
@@ -71,13 +73,24 @@ async function run(taskId: string): Promise<void> {
   console.log("\n📤 [Zephyr] Creating test cases...");
   const zephyrCases = createTestCases(taskId, reviewResult.testCases);
 
+  // Step 6: Generate .feature files
+  console.log("\n" + "=".repeat(60));
+  const featureFiles = await gherkinAgent(
+    client,
+    taskId,
+    task.summary,
+    reviewResult.testCases
+  );
+
   // Summary
   console.log("\n" + "=".repeat(60));
   console.log("\n✅ Pipeline completed successfully!");
-  console.log(`   Task:        ${taskId} — ${task.summary}`);
-  console.log(`   Test cases:  ${zephyrCases.length} created`);
+  console.log(`   Task:          ${taskId} — ${task.summary}`);
+  console.log(`   Test cases:    ${zephyrCases.length} created in Zephyr`);
+  console.log(`   Feature files: ${featureFiles.length} generated`);
+  featureFiles.forEach((f) => console.log(`     → output/${taskId}/features/${f.filename}`));
   console.log(`   Debate rounds: ${MAX_DEBATE_ROUNDS}`);
-  console.log(`   Agents: Reader → UI + Critical + EdgeCase → Reviewer\n`);
+  console.log(`   Agents: Reader → UI + Critical + EdgeCase → Reviewer → Gherkin\n`);
 }
 
 // Entry point
